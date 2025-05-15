@@ -1,36 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Печать заказа</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2cm; }
-    h1 { text-align: center; }
-    p { font-size: 18px; margin: 0.5em 0; }
-  </style>
+<meta charset="UTF-8" />
+<title>Печать заказов</title>
+<style>
+  /* базовый стиль для печати */
+  @media print {
+    body * { visibility: hidden; }
+    #printable, #printable * { visibility: visible; }
+    #printable { position: absolute; top: 0; left: 0; }
+  }
+</style>
 </head>
 <body>
-  <h1>Квитанция на ремонт</h1>
-  <p><strong>Номер заказа:</strong> <span id="order_id"></span></p>
-  <p><strong>Клиент:</strong> <span id="client_name"></span></p>
-  <p><strong>Телефон:</strong> <span id="phone"></span></p>
-  <p><strong>Устройство:</strong> <span id="device"></span></p>
-  <p><strong>Дата:</strong> <span id="date"></span></p>
 
-  <script>
-    function getParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param) || '—';
-    }
+<h2>Выберите шаблон и заказ</h2>
 
-    document.getElementById('order_id').textContent = getParam('order_id');
-    document.getElementById('client_name').textContent = getParam('client_name');
-    document.getElementById('phone').textContent = getParam('phone');
-    document.getElementById('device').textContent = getParam('device');
-    document.getElementById('date').textContent = getParam('date');
+<select id="templateSelect">
+  <option value="acceptance">Квитанция приемки</option>
+  <option value="act">Акт выполненных работ</option>
+</select>
 
-    // Авто вызов окна печати (по желанию, можешь раскомментировать)
-    // window.print();
-  </script>
+<input type="text" id="orderNumber" placeholder="Номер заказа" />
+
+<button onclick="renderPrint()">Показать для печати</button>
+<button onclick="window.print()">Печать</button>
+
+<div id="printable" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; display:none;">
+  <!-- Здесь будет генерироваться контент для печати -->
+</div>
+
+<script>
+const templates = {
+  acceptance: (order) => `
+    <h3>Квитанция приемки заказа №${order.number}</h3>
+    <p>Клиент: ${order.client}</p>
+    <p>Устройство: ${order.device}</p>
+    <p>Дата приема: ${order.date}</p>
+    <p>Примечания: ${order.notes}</p>
+  `,
+  act: (order) => `
+    <h3>Акт выполненных работ по заказу №${order.number}</h3>
+    <p>Клиент: ${order.client}</p>
+    <p>Устройство: ${order.device}</p>
+    <p>Выполнено: ${order.done}</p>
+    <p>Дата сдачи: ${order.date}</p>
+  `
+};
+
+function getOrderData(number) {
+  // Тут заглушка, имитируем получение данных.
+  // В реале можно подгружать через fetch с API или подставлять из URL-параметров
+  return {
+    number,
+    client: 'Иванов Иван',
+    device: 'Смартфон XYZ',
+    date: '15.05.2025',
+    notes: 'Без дефектов',
+    done: 'Замена экрана, чистка'
+  };
+}
+
+function renderPrint() {
+  const tpl = document.getElementById('templateSelect').value;
+  const number = document.getElementById('orderNumber').value.trim();
+  if(!number) {
+    alert('Введите номер заказа');
+    return;
+  }
+  const order = getOrderData(number);
+  const html = templates[tpl](order);
+  const printDiv = document.getElementById('printable');
+  printDiv.innerHTML = html;
+  printDiv.style.display = 'block';
+}
+</script>
+
 </body>
 </html>
