@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Печать заказа</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2cm; }
+    h1 { text-align: center; }
+    p { font-size: 18px; margin: 0.5em 0; }
+  </style>
+</head>
+<body>
+  <h1>Квитанция на ремонт</h1>
+  <p><strong>Номер заказа:</strong> <span id="order_id"></span></p>
+  <p><strong>Клиент:</strong> <span id="client_name"></span></p>
+  <p><strong>Телефон:</strong> <span id="phone"></span></p>
+  <p><strong>Устройство:</strong> <span id="device"></span></p>
+  <p><strong>Дата:</strong> <span id="date"></span></p>
+
+  <script>
+    function getParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param) || '—';
+    }
+
+    document.getElementById('order_id').textContent = getParam('order_id');
+    document.getElementById('client_name').textContent = getParam('client_name');
+    document.getElementById('phone').textContent = getParam('phone');
+    document.getElementById('device').textContent = getParam('device');
+    document.getElementById('date').textContent = getParam('date');
+
+    // Авто вызов окна печати (по желанию, можешь раскомментировать)
+    // window.print();
+  </script>
+</body>
+</html>
