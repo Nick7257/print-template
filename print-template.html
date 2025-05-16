@@ -55,7 +55,7 @@ const AIRTABLE_API_KEY = 'pat9UkitwwG5KSSt3.0b907873416c6e8e54a936dea0792abe6324
 const BASE_ID = 'app3gttO3bDkiyXWg';
 
 // 📄 Вставь сюда имя таблицы
-const TABLE_NAME = 'ВСТАВЬ_СЮДА_ИМЯ_ТАБЛИЦЫ';
+const TABLE_NAME = 'Pro 100 service';
 
 async function getOrderData(number) {
   const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}?filterByFormula=${encodeURIComponent(`{Номер}='${number}'`)}`;
