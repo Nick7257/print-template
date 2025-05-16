@@ -48,27 +48,56 @@ const templates = {
   `
 };
 
-function getOrderData(number) {
-  // Тут заглушка, имитируем получение данных.
-  // В реале можно подгружать через fetch с API или подставлять из URL-параметров
+// 🔐 Вставь сюда свой API-ключ
+const AIRTABLE_API_KEY = 'ВСТАВЬ_СЮДА_СВОЙ_API_КЛЮЧ';
+
+// 🆔 Вставь сюда ID своей базы данных
+const BASE_ID = 'ВСТАВЬ_СЮДА_ID_БАЗЫ';
+
+// 📄 Вставь сюда имя таблицы
+const TABLE_NAME = 'ВСТАВЬ_СЮДА_ИМЯ_ТАБЛИЦЫ';
+
+async function getOrderData(number) {
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}?filterByFormula=${encodeURIComponent(`{Номер}='${number}'`)}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_API_KEY}`
+    }
+  });
+
+  const data = await response.json();
+
+  if (data.records.length === 0) {
+    alert('Заказ не найден');
+    return null;
+  }
+
+  const record = data.records[0].fields;
+
   return {
-    number,
-    client: 'Иванов Иван',
-    device: 'Смартфон XYZ',
-    date: '15.05.2025',
-    notes: 'Без дефектов',
-    done: 'Замена экрана, чистка'
+    number: record['Номер'] || '',
+    client: record['Клиент'] || '',
+    device: record['Устройство'] || '',
+    date: record['Дата'] || '',
+    notes: record['Примечания'] || '',
+    done: record['Выполнено'] || ''
   };
 }
 
-function renderPrint() {
+async function renderPrint() {
   const tpl = document.getElementById('templateSelect').value;
   const number = document.getElementById('orderNumber').value.trim();
-  if(!number) {
+
+  if (!number) {
     alert('Введите номер заказа');
     return;
   }
-  const order = getOrderData(number);
+
+  const order = await getOrderData(number);
+
+  if (!order) return;
+
   const html = templates[tpl](order);
   const printDiv = document.getElementById('printable');
   printDiv.innerHTML = html;
