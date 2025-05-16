@@ -75,15 +75,14 @@ async function getOrderData(number) {
 
   const record = data.records[0].fields;
 
-  return {
-    number: record['Номер'] || '',
-    client: record['Клиент'] || '',
-    device: record['Устройство'] || '',
-    date: record['Дата'] || '',
-    notes: record['Примечания'] || '',
-    done: record['Выполнено'] || ''
-  };
-}
+return {
+  number: record.fields['Заказы'] || number,
+  client: Array.isArray(record.fields['Клиенты']) ? record.fields['Клиенты'][0] : record.fields['Клиенты'],
+  device: record.fields['Устройство'],
+  date: record.fields['Дата приёмки'],
+  notes: record.fields['Неисправность'],
+  done: record.fields['Выполненные работы']
+};
 
 async function getOrderData(number) {
   const token = 'pat9UkitwwG5KSSt3.0b907873416c6e8e54a936dea0792abe6324de9d551d2f5037acb7aaeabbc0a1';
