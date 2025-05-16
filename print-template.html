@@ -117,6 +117,22 @@ async function getOrderData(number) {
     done: fields.done || ''
   };
 }
+  async function renderPrint() {
+  const tpl = document.getElementById('templateSelect').value;
+  const number = document.getElementById('orderNumber').value.trim();
+  if (!number) {
+    alert('Введите номер заказа');
+    return;
+  }
+
+  const order = await getOrderData(number);
+  if (!order) return;
+
+  const html = templates[tpl](order);
+  const printDiv = document.getElementById('printable');
+  printDiv.innerHTML = html;
+  printDiv.style.display = 'block';
+}
 </script>
 
 </body>
