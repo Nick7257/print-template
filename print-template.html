@@ -1,36 +1,3 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8" />
-<title>Печать заказов</title>
-<style>
-  /* базовый стиль для печати */
-  @media print {
-    body * { visibility: hidden; }
-    #printable, #printable * { visibility: visible; }
-    #printable { position: absolute; top: 0; left: 0; }
-  }
-</style>
-</head>
-<body>
-
-<h2>Выберите шаблон и заказ</h2>
-
-<select id="templateSelect">
-  <option value="acceptance">Квитанция приемки</option>
-  <option value="act">Акт выполненных работ</option>
-</select>
-
-<input type="text" id="orderNumber" placeholder="Номер заказа" />
-
-<button onclick="renderPrint()">Показать для печати</button>
-<button onclick="window.print()">Печать</button>
-
-<div id="printable" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; display:none;">
-  <!-- Здесь будет генерироваться контент для печати -->
-</div>
-
-<script>
 const templates = {
   acceptance: (order) => `
     <h3>Квитанция приемки заказа №${order.number}</h3>
@@ -48,48 +15,11 @@ const templates = {
   `
 };
 
-// 🔐 Вставь сюда свой API-ключ
-const AIRTABLE_API_KEY = 'pat9UkitwwG5KSSt3.0b907873416c6e8e54a936dea0792abe6324de9d551d2f5037acb7aaeabbc0a1';
-
-// 🆔 Вставь сюда ID своей базы данных
-const BASE_ID = 'app3gttO3bDkiyXWg';
-
-// 📄 Вставь сюда имя таблицы
-const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}?filterByFormula={Номер}="${number}"`;
-
-async function getOrderData(number) {
-  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}?filterByFormula=${encodeURIComponent(`{Номер}='${number}'`)}`;
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${AIRTABLE_API_KEY}`
-    }
-  });
-
-  const data = await response.json();
-
-  if (data.records.length === 0) {
-    alert('Заказ не найден');
-    return null;
-  }
-
-  const record = data.records[0].fields;
-
-return {
-  number: record.fields['Заказы'] || number,
-  client: Array.isArray(record.fields['Клиенты']) ? record.fields['Клиенты'][0] : record.fields['Клиенты'],
-  device: record.fields['Устройство'],
-  date: record.fields['Дата приёмки'],
-  notes: record.fields['Неисправность'],
-  done: record.fields['Выполненные работы']
-};
-
 async function getOrderData(number) {
   const token = 'pat9UkitwwG5KSSt3.0b907873416c6e8e54a936dea0792abe6324de9d551d2f5037acb7aaeabbc0a1';
   const baseId = 'app3gttO3bDkiyXWg';
   const tableName = 'Pro 100 service';
-
-  const url = `https://api.airtable.com/v0/${baseId}/${tableName}?filterByFormula={orderNumber}='${number}'`;
+  const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}?filterByFormula=${encodeURIComponent(`{Заказы}='${number}'`)}`;
 
   const res = await fetch(url, {
     headers: {
@@ -107,7 +37,32 @@ async function getOrderData(number) {
 
   const fields = data.records[0].fields;
 
-return {
+  return {
+    number: fields['Заказы'] || number,
+    client: Array.isArray(fields['Клиенты']) ? fields['Клиенты'][0] : fields['Клиенты'],
+    device: fields['Устройство'],
+    date: fields['Дата приёмки'],
+    notes: fields['Неисправность'],
+    done: fields['Выполненные работы']
+  };
+}
+
+async function renderPrint() {
+  const tpl = document.getElementById('templateSelect').value;
+  const number = document.getElementById('orderNumber').value.trim();
+  if (!number) {
+    alert('Введите номер заказа');
+    return;
+  }
+
+  const order = await getOrderData(number);
+  if (!order) return;
+
+  const html = templates[tpl](order);
+  const printDiv = document.getElementById('printable');
+  printDiv.innerHTML = html;
+  printDiv.style.display = 'block';
+}
   number: record.fields['Заказы'] || number,
   client: Array.isArray(record.fields['Клиенты']) ? record.fields['Клиенты'][0] : record.fields['Клиенты'],
   device: record.fields['Устройство'],
