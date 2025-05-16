@@ -107,15 +107,14 @@ async function getOrderData(number) {
 
   const fields = data.records[0].fields;
 
-  return {
-    number: fields.orderNumber,
-    client: fields.clientName,
-    device: fields.deviceName,
-    date: fields.date,
-    notes: fields.notes || '',
-    done: fields.done || ''
-  };
-}
+return {
+  number: record.fields['Заказы'] || number,
+  client: Array.isArray(record.fields['Клиенты']) ? record.fields['Клиенты'][0] : record.fields['Клиенты'],
+  device: record.fields['Устройство'],
+  date: record.fields['Дата приёмки'],
+  notes: record.fields['Неисправность'],
+  done: record.fields['Выполненные работы']
+};
   async function renderPrint() {
   const tpl = document.getElementById('templateSelect').value;
   const number = document.getElementById('orderNumber').value.trim();
