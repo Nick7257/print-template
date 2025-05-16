@@ -85,23 +85,37 @@ async function getOrderData(number) {
   };
 }
 
-async function renderPrint() {
-  const tpl = document.getElementById('templateSelect').value;
-  const number = document.getElementById('orderNumber').value.trim();
+async function getOrderData(number) {
+  const token = 'pat9UkitwwG5KSSt3.0b907873416c6e8e54a936dea0792abe6324de9d551d2f5037acb7aaeabbc0a1';
+  const baseId = 'app3gttO3bDkiyXWg';
+  const tableName = 'Pro 100 service';
 
-  if (!number) {
-    alert('Введите номер заказа');
-    return;
+  const url = `https://api.airtable.com/v0/${baseId}/${tableName}?filterByFormula={orderNumber}='${number}'`;
+
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  const data = await res.json();
+
+  if (!data.records.length) {
+    alert('Заказ не найден');
+    return null;
   }
 
-  const order = await getOrderData(number);
+  const fields = data.records[0].fields;
 
-  if (!order) return;
-
-  const html = templates[tpl](order);
-  const printDiv = document.getElementById('printable');
-  printDiv.innerHTML = html;
-  printDiv.style.display = 'block';
+  return {
+    number: fields.orderNumber,
+    client: fields.clientName,
+    device: fields.deviceName,
+    date: fields.date,
+    notes: fields.notes || '',
+    done: fields.done || ''
+  };
 }
 </script>
 
